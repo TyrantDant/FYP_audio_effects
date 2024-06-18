@@ -140,6 +140,7 @@ typedef struct {
 //helper decleration
 void Init_LPF (float cutoff, LP *lp, float samplefreq);
 void Init_HPF (float cutoff, HP *hp, float samplefreq);
+float filter_Lp(LP *lp, float input);
 float filter_hp(HP *hp, float input);
 void FIR_LPF_init (FIRFilter *fir);
 float FIRFilter_update(FIRFilter *fir, float input);
