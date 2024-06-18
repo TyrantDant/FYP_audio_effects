@@ -223,6 +223,7 @@ int main(void)
 	FIR_LPF_init(&lpf_in);
 	FIR_LPF_init(&lpf_out);
 	Init_HPF(400.0f ,&hp_in, sample_rate);
+	Init_LPF(8000.0f, &lp_in, sample_rate);
 	del.Init();
 	comb0.Init();
 	comb1.Init();
@@ -373,8 +374,9 @@ float new_overdrive(float input, float gain, float threshold)
 			}
 		}
 	}
-	return (sig);
-	//return (sig/(2.0f*gain));
+	sig=filter_lp(&lp, sig); //LPF after clipping
+	return (sig/gain);
+	
 }
 float do_comb(float input)
 {
