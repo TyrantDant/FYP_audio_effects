@@ -3,6 +3,8 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#define FILTER_TAP_NUM 65
+
 
 /*
 
@@ -23,7 +25,7 @@ sampling frequency: 48000 Hz
 
 */
 
-#define FILTER_TAP_NUM 65
+
 
 static double filter_taps[FILTER_TAP_NUM] = {
   -0.006225687526558968,
@@ -197,12 +199,6 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 	}
 }
 
-float delay_time (float knob)
-{
-	float floor_knob = floorf(knob*100.0f);
-	return (floor_knob/100.0f);
-
-}
 
 int main(void)
 {
@@ -401,6 +397,13 @@ float reverb(float input, float wet)
 	signal=do_comb(input);
 	signal=do_allpass(signal);
 	return(wet*signal+(1.0f-wet)*input);
+}
+
+float delay_time (float knob)
+{
+	float floor_knob = floorf(knob*100.0f);
+	return (floor_knob/100.0f);
+
 }
 
 float delay(float input, float feedback, float wet)
