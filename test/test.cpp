@@ -202,6 +202,10 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 }
 
 
+void set_up ()
+{
+	
+}
 int main(void)
 {
 	AdcChannelConfig par[3];
