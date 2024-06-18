@@ -122,6 +122,7 @@ typedef struct {
 	float b1;
 	float a1;
 	float K;
+	float prev_input;
 	float output;
 } LP;
 
@@ -293,13 +294,26 @@ float FIRFilter_update(FIRFilter *fir, float input)
 
 void Init_LPF (float cutoff, LP *lp, float samplefreq)
 {
-	lp->
-	lp->b0=tanf(
+	lp->K=tanf(M_PI * cutoff /samplefreq);
+	lp->b0=K/(K+1);
+	lp->b1=lp->b0;
+	lp->a1=(K-1)/(K+1);
+}
+
 void Init_HPF (float cutoff, HP *hp, float samplefreq)
 {
 	hp->coeff=2.0f * M_PI * cutoff/samplefreq; 
 	hp->bufin[0]=hp->bufin[1]=0.0f;
 	hp->bufout[0]=hp->bufout[1]=0;
+}
+
+float filter_lp(LP *lp, float input)
+{
+	float new=0;
+	new=(lp->b0)*input+(lp->b1)*prev_input-(lp->a1)*(hp->output);
+	lp->prev_input=input;
+	lp->output=new;
+	return(new);
 }
 
 float filter_hp(HP *hp, float input)
