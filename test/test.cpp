@@ -158,6 +158,7 @@ bool overdrive_bypass = false;
 bool delay_bypass = false;
 FIRFilter lpf_in, lpf_out;
 HP hp_in;
+LP lp_in;
 
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -420,8 +421,8 @@ float reverb(float input, float wet)
 
 float delay_time (float knob)
 {
-	float floor_knob = floorf(knob*100.0f);
-	return (floor_knob/100.0f);
+	float floor_knob = floorf(knob*10000.0f);
+	return (floor_knob/10000.0f);
 
 }
 
