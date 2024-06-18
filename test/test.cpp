@@ -121,6 +121,7 @@ typedef struct {
 	float b0;
 	float b1;
 	float a1;
+	float K;
 	float output;
 } LP;
 
@@ -289,6 +290,11 @@ float FIRFilter_update(FIRFilter *fir, float input)
 	//return filter output
 	return (fir->out);
 } 
+
+void Init_LPF (float cutoff, LP *lp, float samplefreq)
+{
+	lp->
+	lp->b0=tanf(
 void Init_HPF (float cutoff, HP *hp, float samplefreq)
 {
 	hp->coeff=2.0f * M_PI * cutoff/samplefreq; 
@@ -307,55 +313,6 @@ float filter_hp(HP *hp, float input)
 }
 
 
-float overdrive(float input, float gain)
-{
-	float sig=0.0f;
-	float threshold=1.0f/6.0f;
-	sig=gain*input;
-	bool sign=false;
-	if (sig>0.0f)
-	{
-		sign=true;
-	}
-
-	if(sign)
-	{
-		if(sig <= threshold)
-		{
-			sig=sig*2.0f;
-		}
-		else
-		{
-			if (sig>2.0f*threshold)
-			{
-				sig=1.0f;
-			}
-			else
-			{
-				sig=(3.0f-(2.0f -3.0f *sig)*(2.0f -3.0f *sig))/3.0f;
-			}
-		}
-	}
-	else
-	{
-		if(sig >= -threshold)
-		{
-			sig=sig*2.0f;
-		}
-		else
-		{
-			if (sig<-2.0f*threshold)
-			{
-				sig=-1.0f;
-			}
-			else
-			{
-				sig=-1.0f*(3.0f-(2.0f +3.0f *sig)*(2.0f +3.0f *sig))/3.0f;
-			}
-		}
-	}
-	return (sig/(2.0f*gain));
-}
 float new_overdrive(float input, float gain, float threshold)
 {
 	float sig=0.0f;
