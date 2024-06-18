@@ -117,6 +117,13 @@ typedef struct {
 	float coeff; 
 } HP;
 
+typedef struct {
+	float b0;
+	float b1;
+	float a1;
+	float output;
+} LP;
+
 
 typedef struct {
 
@@ -127,6 +134,7 @@ typedef struct {
 } FIRFilter;
 
 //helper decleration
+void Init_LPF (float cutoff, LP *lp, float samplefreq);
 void Init_HPF (float cutoff, HP *hp, float samplefreq);
 float filter_hp(HP *hp, float input);
 void FIR_LPF_init (FIRFilter *fir);
