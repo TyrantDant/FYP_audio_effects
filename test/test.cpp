@@ -151,6 +151,7 @@ float do_allpass(float input);
 float reverb(float input, float wet);
 float delay(float input, float feedback, float wet);
 float delay_time (float knob);
+void set_up (float sample_rate);
 
 
 bool reverb_bypass = false;
@@ -203,10 +204,8 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 }
 
 
-void set_up ()
-{
-	
-}
+
+
 int main(void)
 {
 	AdcChannelConfig par[3];
@@ -220,27 +219,7 @@ int main(void)
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	float sample_rate=hw.AudioSampleRate();
-	FIR_LPF_init(&lpf_in);
-	FIR_LPF_init(&lpf_out);
-	Init_HPF(400.0f ,&hp_in, sample_rate);
-	Init_LPF(8000.0f, &lp_in, sample_rate);
-	del.Init();
-	comb0.Init();
-	comb1.Init();
-	comb2.Init();
-	comb3.Init();
-	allpass0.Init();
-	allpass1.Init();
-	allpass2.Init();
-	del.SetDelay(8000.0f);
-	//del.SetDelay(sample_rate*0.1f);
-	comb0.SetDelay(sample_rate*0.03604f);
-	comb1.SetDelay(sample_rate*0.03112f);
-	comb2.SetDelay(sample_rate*0.04044f);
-	comb3.SetDelay(sample_rate*0.04492f);
-	allpass0.SetDelay(sample_rate*0.005f);
-	allpass1.SetDelay(sample_rate*0.00168f);
-	allpass2.SetDelay(sample_rate*0.00048f);
+	set_up(sample_rate); // initialized all effects 
 
 
 	
@@ -433,4 +412,31 @@ float delay(float input, float feedback, float wet)
 	float out = del.Read();
 	del.Write(input+feedback*out);
 	return ((1.0f-wet)*input+wet*out);
+}
+
+
+void set_up (float sample_rate)
+{
+	
+	FIR_LPF_init(&lpf_in);
+	FIR_LPF_init(&lpf_out);
+	Init_HPF(400.0f ,&hp_in, sample_rate);
+	Init_LPF(8000.0f, &lp_in, sample_rate);
+	del.Init();
+	comb0.Init();
+	comb1.Init();
+	comb2.Init();
+	comb3.Init();
+	allpass0.Init();
+	allpass1.Init();
+	allpass2.Init();
+	del.SetDelay(8000.0f);
+	//del.SetDelay(sample_rate*0.1f);
+	comb0.SetDelay(sample_rate*0.03604f);
+	comb1.SetDelay(sample_rate*0.03112f);
+	comb2.SetDelay(sample_rate*0.04044f);
+	comb3.SetDelay(sample_rate*0.04492f);
+	allpass0.SetDelay(sample_rate*0.005f);
+	allpass1.SetDelay(sample_rate*0.00168f);
+	allpass2.SetDelay(sample_rate*0.00048f);
 }
