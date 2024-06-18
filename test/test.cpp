@@ -168,9 +168,6 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		//LPF in
 		signal=FIRFilter_update(&lpf_in,in[1][i]);
 		
-		//HPF in
-		signal=filter_hp(&hp_in, signal);
-		//signal = in[0][i];
 
 		//overdrive
 		if(!drive_bypass)
@@ -316,6 +313,7 @@ float filter_hp(HP *hp, float input)
 float new_overdrive(float input, float gain, float threshold)
 {
 	float sig=0.0f;
+	sig=filter_hp(&hp_in, signal); // HPF before overdrive
 	sig=gain*input;
 	bool sign=false;
 	if (sig>0.0f)
