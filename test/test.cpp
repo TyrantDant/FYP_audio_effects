@@ -160,6 +160,7 @@ bool delay_on = false;
 FIRFilter lpf_in, lpf_out;
 HP hp_in;
 LP lp_in;
+Switch sw_overdrive, sw_delay, sw_reverb; 
 
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -170,11 +171,11 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 	sw_reverb.Debounce();
 	//check if any button was pressed
 	if (sw_overdrive.RisingEdge())
-		overdrive_on=overdrive_on!;
+		overdrive_on=!overdrive_on;
 	if (sw_delay.RisingEdge())
-		delay_on=delay_on!;
+		delay_on=!delay_on;
 	if (sw_reverb.RisingEdge())
-		reverb_on=reverb_on!;
+		reverb_on=!reverb_on;
 	
 	
 	float signal=0.0f;
@@ -194,7 +195,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		if (delay_on)
 		{
 			del.SetDelay(delay_time(hw.adc.GetFloat(1))*sample_rate);
-			signal=delay(signal,0.0f, 0.5f);
+			signal=delay(signal,0.2f, 0.7f);
 		}
 
 		//reverb
@@ -205,10 +206,10 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 
 		signal=FIRFilter_update(&lpf_out,signal);
 
-		//out[0][i]=3.0f*signal;
-		//out[1][i]=3.0f*signal;
-		out[1][i] = in[1][i];  
-		out[0][i] = in[0][i];
+		out[0][i]=signal;
+		out[1][i]=signal;
+		//out[1][i] = in[1][i];  
+		//out[0][i] = in[0][i];
 	}
 }
 
@@ -220,7 +221,6 @@ int main(void)
 	AdcChannelConfig par[3];
 	hw.Configure();
 	hw.Init();
-	switch sw_overdrive sw_delay sw_reverb 
 	sw_overdrive.Init(hw.GetPin(18), 1000);
 	sw_delay.Init(hw.GetPin(19), 1000);
 	sw_reverb.Init(hw.GetPin(20), 1000);
@@ -284,9 +284,9 @@ float FIRFilter_update(FIRFilter *fir, float input)
 void Init_LPF (float cutoff, LP *lp, float samplefreq)
 {
 	lp->K=tanf(M_PI * cutoff /samplefreq);
-	lp->b0=K/(K+1);
+	lp->b0=(lp->K)/((lp->K)+1);
 	lp->b1=lp->b0;
-	lp->a1=(K-1)/(K+1);
+	lp->a1=((lp->K)-1)/((lp->K)+1);
 }
 
 void Init_HPF (float cutoff, HP *hp, float samplefreq)
@@ -298,11 +298,11 @@ void Init_HPF (float cutoff, HP *hp, float samplefreq)
 
 float filter_lp(LP *lp, float input)
 {
-	float new=0;
-	new=(lp->b0)*input+(lp->b1)*prev_input-(lp->a1)*(hp->output);
+	float sig = 0.0f;
+	sig = (lp->b0)*input+(lp->b1)*(lp->prev_input)-(lp->a1)*(lp->output);
 	lp->prev_input=input;
-	lp->output=new;
-	return(new);
+	lp->output=sig;
+	return(sig);
 }
 
 float filter_hp(HP *hp, float input)
@@ -319,7 +319,7 @@ float filter_hp(HP *hp, float input)
 float new_overdrive(float input, float gain, float threshold)
 {
 	float sig=0.0f;
-	sig=filter_hp(&hp_in, signal); // HPF before overdrive
+	sig=filter_hp(&hp_in, sig); // HPF before overdrive
 	sig=gain*input;
 	bool sign=false;
 	if (sig>0.0f)
@@ -363,7 +363,7 @@ float new_overdrive(float input, float gain, float threshold)
 			}
 		}
 	}
-	sig=filter_lp(&lp, sig); //LPF after clipping
+	sig=filter_lp(&lp_in, sig); //LPF after clipping
 	return (sig/gain);
 	
 }
@@ -412,8 +412,8 @@ float reverb(float input, float wet)
 
 float delay_time (float knob)
 {
-	float floor_knob = floorf(knob*10000.0f);
-	return (floor_knob/10000.0f);
+	float floor_knob = floorf(knob*1000.0f);
+	return (floor_knob/1000.0f);
 
 }
 
