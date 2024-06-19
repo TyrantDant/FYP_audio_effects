@@ -154,9 +154,9 @@ float delay_time (float knob);
 void set_up (float sample_rate);
 
 
-bool reverb_bypass = false;
-bool overdrive_bypass = false;
-bool delay_bypass = false;
+bool reverb_on = false;
+bool overdrive_on = false;
+bool delay_on = false;
 FIRFilter lpf_in, lpf_out;
 HP hp_in;
 LP lp_in;
@@ -168,6 +168,15 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 	sw_overdrive.Debounce();
 	sw_delay.Debounce();
 	sw_reverb.Debounce();
+	//check if any button was pressed
+	if (sw_overdrive.RisingEdge())
+		overdrive_on=overdrive_on!;
+	if (sw_delay.RisingEdge())
+		delay_on=delay_on!;
+	if (sw_reverb.RisingEdge())
+		reverb_on=reverb_on!;
+	
+	
 	float signal=0.0f;
 	for (size_t i = 0; i < size; i++)
 	{
@@ -176,30 +185,30 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		
 
 		//overdrive
-		if(sw_overdrive.Pressed())
+		if(overdrive_on)
 		{
 			signal = new_overdrive(signal, 10.0f*hw.adc.GetFloat(0) ,3.0f);
 		}
 	
 		//delay
-		if (sw_delay.Pressed())
+		if (delay_on)
 		{
 			del.SetDelay(delay_time(hw.adc.GetFloat(1))*sample_rate);
 			signal=delay(signal,0.0f, 0.5f);
 		}
 
 		//reverb
-		if (sw_reverb.Pressed())
+		if (reverb_on)
 		{
 			signal=reverb(signal,0.5f*hw.adc.GetFloat(2));
 		}
 
 		signal=FIRFilter_update(&lpf_out,signal);
 
-		out[0][i]=3.0f*signal;
-		out[1][i]=3.0f*signal;
-		//out[1][i] = in[1][i];  
-		//out[0][i] = in[0][i];
+		//out[0][i]=3.0f*signal;
+		//out[1][i]=3.0f*signal;
+		out[1][i] = in[1][i];  
+		out[0][i] = in[0][i];
 	}
 }
 
@@ -212,9 +221,9 @@ int main(void)
 	hw.Configure();
 	hw.Init();
 	switch sw_overdrive sw_delay sw_reverb 
-	sw_overdrive.Init(hw.GetPin(18), 100);
-	sw_delay.Init(hw.GetPin(19), 100);
-	sw_reverb.Init(hw.GetPin(20), 100);
+	sw_overdrive.Init(hw.GetPin(18), 1000);
+	sw_delay.Init(hw.GetPin(19), 1000);
+	sw_reverb.Init(hw.GetPin(20), 1000);
 	par[0].InitSingle(hw.GetPin(15));
 	par[1].InitSingle(hw.GetPin(16),AdcChannelConfig::SPEED_810CYCLES_5);
 	par[2].InitSingle(hw.GetPin(17));
@@ -224,9 +233,6 @@ int main(void)
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	float sample_rate=hw.AudioSampleRate();
 	set_up(sample_rate); // initialized all effects 
-
-
-	
 	hw.StartAudio(AudioCallback);	
 	while(1) {}
 }
