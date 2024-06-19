@@ -176,9 +176,13 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		delay_on=!delay_on;
 	if (sw_reverb.RisingEdge())
 		reverb_on=!reverb_on;
-	
-	
 	float signal=0.0f;
+	float delay_t = floorf(delay_time(hw.adc.GetFloat(1))*sample_rate);
+	if (delay_on)
+	{
+		del.SetDelay(delay_t);
+	}
+	
 	for (size_t i = 0; i < size; i++)
 	{
 		//LPF in
@@ -194,14 +198,13 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		//delay
 		if (delay_on)
 		{
-			del.SetDelay(delay_time(hw.adc.GetFloat(1))*sample_rate);
 			signal=delay(signal,0.2f, 0.7f);
 		}
 
 		//reverb
 		if (reverb_on)
 		{
-			signal=reverb(signal,0.5f*hw.adc.GetFloat(2));
+			signal=reverb(signal,0.8f*hw.adc.GetFloat(2));
 		}
 
 		signal=FIRFilter_update(&lpf_out,signal);
@@ -229,7 +232,7 @@ int main(void)
 	par[2].InitSingle(hw.GetPin(17));
 	hw.adc.Init( par, 3);
 	hw.adc.Start();
-	hw.SetAudioBlockSize(4); // number of samples handled per callback
+	hw.SetAudioBlockSize(48); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	float sample_rate=hw.AudioSampleRate();
 	set_up(sample_rate); // initialized all effects 
@@ -431,7 +434,7 @@ void set_up (float sample_rate)
 	FIR_LPF_init(&lpf_in);
 	FIR_LPF_init(&lpf_out);
 	Init_HPF(400.0f ,&hp_in, sample_rate);
-	Init_LPF(8000.0f, &lp_in, sample_rate);
+	Init_LPF(12000.0f, &lp_in, sample_rate);
 	del.Init();
 	comb0.Init();
 	comb1.Init();
