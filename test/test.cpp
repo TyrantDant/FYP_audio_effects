@@ -165,9 +165,9 @@ LP lp_in;
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
 	float sample_rate=hw.AudioSampleRate();
-	bool drive_bypass = false;
-	bool delay_bypass = false;
-	bool reverb_bypass = false;
+	sw_overdrive.Debounce();
+	sw_delay.Debounce();
+	sw_reverb.Debounce();
 	float signal=0.0f;
 	for (size_t i = 0; i < size; i++)
 	{
@@ -176,20 +176,20 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		
 
 		//overdrive
-		if(!drive_bypass)
+		if(sw_overdrive.Pressed())
 		{
 			signal = new_overdrive(signal, 10.0f*hw.adc.GetFloat(0) ,3.0f);
 		}
 	
 		//delay
-		if (!delay_bypass)
+		if (sw_delay.Pressed())
 		{
 			del.SetDelay(delay_time(hw.adc.GetFloat(1))*sample_rate);
 			signal=delay(signal,0.0f, 0.5f);
 		}
 
 		//reverb
-		if (!reverb_bypass)
+		if (sw_reverb.Pressed())
 		{
 			signal=reverb(signal,0.5f*hw.adc.GetFloat(2));
 		}
@@ -211,6 +211,10 @@ int main(void)
 	AdcChannelConfig par[3];
 	hw.Configure();
 	hw.Init();
+	switch sw_overdrive sw_delay sw_reverb 
+	sw_overdrive.Init(hw.GetPin(18), 100);
+	sw_delay.Init(hw.GetPin(19), 100);
+	sw_reverb.Init(hw.GetPin(20), 100);
 	par[0].InitSingle(hw.GetPin(15));
 	par[1].InitSingle(hw.GetPin(16),AdcChannelConfig::SPEED_810CYCLES_5);
 	par[2].InitSingle(hw.GetPin(17));
