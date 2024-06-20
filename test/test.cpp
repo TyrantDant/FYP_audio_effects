@@ -200,6 +200,10 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		{
 			signal=delay(signal,0.2f, 0.7f);
 		}
+		else
+		{
+			del.write(signal);//always have the delay ready to use even when off
+		}
 
 		//reverb
 		if (reverb_on)
@@ -415,8 +419,8 @@ float reverb(float input, float wet)
 
 float delay_time (float knob)
 {
-	float new_knob = floorf(knob*48000.0f);
-	return (new_knob);
+	float new_knob = floorf(knob*50.0f);//get values between 0-50
+	return (new_knob*960.0f);//returns delay times in jumps of 20 ms
 
 }
 
