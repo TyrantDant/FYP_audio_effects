@@ -177,7 +177,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 	if (sw_reverb.RisingEdge())
 		reverb_on=!reverb_on;
 	float signal=0.0f;
-	float delay_t = floorf(delay_time(hw.adc.GetFloat(1))*sample_rate);
+	float delay_t = delay_time(hw.adc.GetFloat(1));
 	if (delay_on)
 	{
 		del.SetDelay(delay_t);
@@ -415,8 +415,8 @@ float reverb(float input, float wet)
 
 float delay_time (float knob)
 {
-	float floor_knob = floorf(knob*1000.0f);
-	return (floor_knob/1000.0f);
+	float new_knob = floorf(knob*48000.0f);
+	return (new_knob);
 
 }
 
