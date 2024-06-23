@@ -178,6 +178,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		reverb_on=!reverb_on;
 	float signal=0.0f;
 	float delay_t = delay_time(hw.adc.GetFloat(1));
+	delay_on = true; // for Danny testing on the pod 
 	if (delay_on)
 	{
 		del.SetDelay(delay_t);
@@ -202,7 +203,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		}
 		else
 		{
-			del.write(signal);//always have the delay ready to use even when off
+			del.Write(signal);//always have the delay ready to use even when off
 		}
 
 		//reverb
@@ -391,7 +392,6 @@ float do_comb(float input)
 	//return total output
 	return(0.25f*(out0+out1+out2+out3));
 }
-
 float do_allpass(float input)
 {
 	float gain =0.7f;
@@ -408,7 +408,6 @@ float do_allpass(float input)
 	//return result
 	return (out2);
 }
-
 float reverb(float input, float wet)
 {
 	float signal=0.0f;
