@@ -98,6 +98,7 @@ static double filter_taps[FILTER_TAP_NUM] = {
 
 using namespace daisy;
 using namespace daisysp;
+using namespace daisy::seed;
 #define MAX_DELAY static_cast<size_t>(48000 * 1.0f)
 #define MAX_DELAY1 static_cast<size_t>(48000 * 1.0f)
 
@@ -161,6 +162,7 @@ FIRFilter lpf_in, lpf_out;
 HP hp_in;
 LP lp_in;
 Switch sw_overdrive, sw_delay, sw_reverb; 
+GPIO led1, led2, led3;
 
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -178,8 +180,8 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		reverb_on=!reverb_on;
 	//update leds
 	led1.Write(overdrive_on);
-	led2.Write(reverb_on);
-	led3.Write(delay_on);
+	led2.Write(delay_on);
+	led3.Write(reverb_on);
 	
 	float signal=0.0f;
 	float delay_t = delay_time(hw.adc.GetFloat(1));
@@ -234,10 +236,10 @@ int main(void)
 	AdcChannelConfig par[3];
 	hw.Configure();
 	hw.Init();
-	GPIO led1, led2, led3;
-	led1.init(D0, GPIO::Mode::OUTPUT);
-	led2.init(D1, GPIO::Mode::OUTPUT);
-	led3.init(D2, GPIO::Mode::OUTPUT);
+	//GPIO led1, led2, led3;
+	led1.Init(D0, GPIO::Mode::OUTPUT);
+	led2.Init(D1, GPIO::Mode::OUTPUT);
+	led3.Init(D2, GPIO::Mode::OUTPUT);
 	sw_overdrive.Init(hw.GetPin(18), 1000);
 	sw_delay.Init(hw.GetPin(19), 1000);
 	sw_reverb.Init(hw.GetPin(20), 1000);
@@ -250,7 +252,11 @@ int main(void)
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	float sample_rate=hw.AudioSampleRate();
 	set_up(sample_rate); // initialized all effects 
+	
+
 	hw.StartAudio(AudioCallback);	
+
+	
 	while(1) {}
 }
 
