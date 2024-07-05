@@ -176,6 +176,11 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		delay_on=!delay_on;
 	if (sw_reverb.RisingEdge())
 		reverb_on=!reverb_on;
+	//update leds
+	analogWrite(24, overdrive_on*255.0f);
+	analogWrite(24, reverb_on*255.0f);
+	analogWrite(24, delay_on*255.0f);
+	
 	float signal=0.0f;
 	float delay_t = delay_time(hw.adc.GetFloat(1));
 	delay_on = true; // for Danny testing on the pod 
