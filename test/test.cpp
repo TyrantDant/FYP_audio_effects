@@ -177,9 +177,9 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 	if (sw_reverb.RisingEdge())
 		reverb_on=!reverb_on;
 	//update leds
-	analogWrite(24, overdrive_on*255.0f);
-	analogWrite(24, reverb_on*255.0f);
-	analogWrite(24, delay_on*255.0f);
+	led1.Write(overdrive_on);
+	led2.Write(reverb_on);
+	led3.Write(delay_on);
 	
 	float signal=0.0f;
 	float delay_t = delay_time(hw.adc.GetFloat(1));
@@ -234,6 +234,10 @@ int main(void)
 	AdcChannelConfig par[3];
 	hw.Configure();
 	hw.Init();
+	GPIO led1, led2, led3;
+	led1.init(D0, GPIO::Mode::OUTPUT);
+	led2.init(D1, GPIO::Mode::OUTPUT);
+	led3.init(D2, GPIO::Mode::OUTPUT);
 	sw_overdrive.Init(hw.GetPin(18), 1000);
 	sw_delay.Init(hw.GetPin(19), 1000);
 	sw_reverb.Init(hw.GetPin(20), 1000);
